@@ -1,0 +1,63 @@
+generator client {
+    provider = "prisma-client-js"
+    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
+    output = "/home/ubuntu/fintrack_app/nextjs_space/node_modules/.prisma/client"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String   @default("Usuario")
+  createdAt     DateTime @default(now())
+  credentials   WebAuthnCredential[]
+  transactions  Transaction[]
+  challenges    AuthChallenge[]
+}
+
+model WebAuthnCredential {
+  id                  String   @id @default(cuid())
+  credentialId        String   @unique
+  credentialPublicKey Bytes
+  counter             BigInt   @default(0)
+  transports          String[] @default([])
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt           DateTime @default(now())
+}
+
+model AuthChallenge {
+  id        String   @id @default(cuid())
+  challenge String
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  tipo        String   // Ingreso | Gasto
+  descripcion String
+  monto       Float
+  fecha       DateTime @default(now())
+  mes         String
+  metodoPago  String   // Efectivo | Debit | Credit
+  cuenta      String   // Efectivo | Tarjeta de Débito | Tarjeta de Crédito
+  categoria   String
+  ubicacion   String?
+  fuente      String?  // Money movement | Expenses detail (CARD) | Manual
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId, fecha])
+  @@index([userId, categoria])
+  @@index([userId, mes])
+}
