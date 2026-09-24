@@ -6,6 +6,7 @@ const nextConfig = {
   output: process.env.NEXT_OUTPUT_MODE,
   poweredByHeader: false,
   productionBrowserSourceMaps: false,
+  serverExternalPackages: ['@prisma/client', '.prisma/client'],
   outputFileTracingRoot: process.env.NEXT_OUTPUT_MODE ? path.join(__dirname, '../') : '/',
   typescript: {
     ignoreBuildErrors: true,
