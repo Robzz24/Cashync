@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { TrendingUp, TrendingDown, Wallet, ChevronLeft, ChevronRight, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { TrendingUp, TrendingDown, Wallet, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getCategoryInfo, MONTHS_ES } from '@/lib/categories';
 import CategoryChart from './category-chart';
 import MonthlyChart from './monthly-chart';
+import LucideIcon from './lucide-icon';
 
 interface DashboardProps {
   refreshKey: number;
@@ -53,7 +54,7 @@ export default function Dashboard({ refreshKey }: DashboardProps) {
 
   if (loading && !data) {
     return (
-      <div className="p-4 space-y-4">
+      <div className="p-4 space-y-3">
         {[1, 2, 3].map((i) => (
           <div key={i} className="glass-card p-6 animate-pulse">
             <div className="h-4 bg-white/10 rounded w-1/3 mb-3" />
@@ -64,21 +65,25 @@ export default function Dashboard({ refreshKey }: DashboardProps) {
     );
   }
 
-  const balance = data?.mesSaldo ?? 0;
+  const saldoEfectivo = data?.saldoEfectivoTotal ?? 0;
+  const saldoTarjeta = data?.saldoTarjetaTotal ?? 0;
   const mesIngresos = data?.mesIngresos ?? 0;
   const mesGastos = data?.mesGastos ?? 0;
+  const mesSaldo = data?.mesSaldo ?? 0;
+  const mesGastoEfectivo = data?.mesGastoEfectivo ?? 0;
+  const mesGastoTarjeta = data?.mesGastoTarjeta ?? 0;
   const categorias = data?.categorias ?? {};
   const recientes = data?.recientes ?? [];
   const monthlyTrend = data?.monthlyTrend ?? [];
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="p-4 space-y-3">
       {/* Month Selector */}
-      <div className="flex items-center justify-center gap-4 mb-2">
+      <div className="flex items-center justify-center gap-4 mb-1">
         <button onClick={prevMonth} className="p-2 rounded-xl glass hover:bg-white/10 transition-colors">
           <ChevronLeft size={20} className="text-white/70" />
         </button>
-        <h2 className="font-display text-lg font-semibold text-white min-w-[140px] text-center">
+        <h2 className="font-display text-lg font-semibold text-white min-w-[160px] text-center">
           {MONTHS_ES[selectedMonth] ?? selectedMonth} 2026
         </h2>
         <button onClick={nextMonth} className="p-2 rounded-xl glass hover:bg-white/10 transition-colors">
@@ -86,50 +91,95 @@ export default function Dashboard({ refreshKey }: DashboardProps) {
         </button>
       </div>
 
-      {/* Balance Card */}
+      {/* Bento Grid: Accumulated Balances */}
+      <div className="grid grid-cols-2 gap-3">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card p-4 glow-purple"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <Wallet size={16} className="text-purple-400" />
+            <span className="text-white/50 text-xs">Efectivo</span>
+          </div>
+          <p className={`font-mono text-xl font-bold ${saldoEfectivo >= 0 ? 'text-white' : 'text-red-400'}`}>
+            ${saldoEfectivo.toFixed(2)}
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          className="glass-card p-4"
+        >
+          <div className="flex items-center gap-2 mb-2">
+            <CreditCard size={16} className="text-blue-400" />
+            <span className="text-white/50 text-xs">Tarjeta</span>
+          </div>
+          <p className={`font-mono text-xl font-bold ${saldoTarjeta >= 0 ? 'text-white' : 'text-red-400'}`}>
+            ${saldoTarjeta.toFixed(2)}
+          </p>
+        </motion.div>
+      </div>
+
+      {/* Monthly Balance */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="glass-card p-5 glow-purple"
+        transition={{ delay: 0.1 }}
+        className="glass-card p-4"
       >
-        <div className="flex items-center gap-2 mb-1">
-          <Wallet size={16} className="text-purple-400" />
-          <span className="text-white/60 text-sm">Balance del mes</span>
+        <h3 className="text-white/60 text-xs font-medium mb-3">Balance del mes</h3>
+        <div className="grid grid-cols-3 gap-2">
+          <div>
+            <div className="flex items-center gap-1 mb-1">
+              <TrendingUp size={12} className="text-green-400" />
+              <span className="text-white/40 text-[10px]">Ingresos</span>
+            </div>
+            <p className="font-mono text-sm font-bold text-green-400">${mesIngresos.toFixed(2)}</p>
+          </div>
+          <div>
+            <div className="flex items-center gap-1 mb-1">
+              <TrendingDown size={12} className="text-red-400" />
+              <span className="text-white/40 text-[10px]">Gastos</span>
+            </div>
+            <p className="font-mono text-sm font-bold text-red-400">${mesGastos.toFixed(2)}</p>
+          </div>
+          <div>
+            <span className="text-white/40 text-[10px] block mb-1">Neto</span>
+            <p className={`font-mono text-sm font-bold ${mesSaldo >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+              ${mesSaldo.toFixed(2)}
+            </p>
+          </div>
         </div>
-        <p className={`font-mono text-3xl font-bold ${balance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-          ${balance?.toFixed?.(2) ?? '0.00'}
-        </p>
       </motion.div>
 
-      {/* Month Summary */}
+      {/* Expenses split */}
       <div className="grid grid-cols-2 gap-3">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          className="glass-card p-4"
-        >
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp size={14} className="text-green-400" />
-            <span className="text-white/50 text-xs">Ingresos</span>
-          </div>
-          <p className="font-mono text-xl font-bold text-green-400">
-            ${mesIngresos?.toFixed?.(2) ?? '0.00'}
-          </p>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.15 }}
           className="glass-card p-4"
         >
           <div className="flex items-center gap-2 mb-1">
-            <TrendingDown size={14} className="text-red-400" />
-            <span className="text-white/50 text-xs">Gastos</span>
+            <Wallet size={12} className="text-orange-400" />
+            <span className="text-white/40 text-[10px]">Gastos efectivo</span>
           </div>
-          <p className="font-mono text-xl font-bold text-red-400">
-            ${mesGastos?.toFixed?.(2) ?? '0.00'}
-          </p>
+          <p className="font-mono text-lg font-bold text-red-400">${mesGastoEfectivo.toFixed(2)}</p>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+          className="glass-card p-4"
+        >
+          <div className="flex items-center gap-2 mb-1">
+            <CreditCard size={12} className="text-blue-400" />
+            <span className="text-white/40 text-[10px]">Gastos tarjeta</span>
+          </div>
+          <p className="font-mono text-lg font-bold text-red-400">${mesGastoTarjeta.toFixed(2)}</p>
         </motion.div>
       </div>
 
@@ -138,10 +188,10 @@ export default function Dashboard({ refreshKey }: DashboardProps) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.25 }}
           className="glass-card p-4"
         >
-          <h3 className="text-white/80 text-sm font-semibold mb-3">Gastos por categoría</h3>
+          <h3 className="text-white/80 text-sm font-semibold mb-3">Gastos por categoria</h3>
           <CategoryChart categorias={categorias} />
         </motion.div>
       )}
@@ -151,7 +201,7 @@ export default function Dashboard({ refreshKey }: DashboardProps) {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
+          transition={{ delay: 0.3 }}
           className="glass-card p-4"
         >
           <h3 className="text-white/80 text-sm font-semibold mb-3">Tendencia mensual</h3>
@@ -163,13 +213,13 @@ export default function Dashboard({ refreshKey }: DashboardProps) {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
+        transition={{ delay: 0.35 }}
         className="glass-card p-4"
       >
-        <h3 className="text-white/80 text-sm font-semibold mb-3">Últimos movimientos</h3>
+        <h3 className="text-white/80 text-sm font-semibold mb-3">Ultimos movimientos</h3>
         <div className="space-y-2">
           {recientes.length === 0 && (
-            <p className="text-white/40 text-sm text-center py-4">No hay movimientos aún</p>
+            <p className="text-white/40 text-sm text-center py-4">No hay movimientos aun</p>
           )}
           {recientes.slice(0, 8).map((tx: any, i: number) => {
             const catInfo = getCategoryInfo(tx?.categoria ?? 'Otros');
@@ -179,17 +229,17 @@ export default function Dashboard({ refreshKey }: DashboardProps) {
                 key={tx?.id ?? i}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.05 * i }}
+                transition={{ delay: 0.03 * i }}
                 className="flex items-center gap-3 py-2 px-3 rounded-xl hover:bg-white/5 transition-colors"
               >
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
                   style={{ backgroundColor: `${catInfo.color}20` }}
                 >
-                  {catInfo.emoji}
+                  <LucideIcon name={catInfo.icon} size={16} style={{ color: catInfo.color }} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-white text-sm font-medium truncate">{tx?.descripcion ?? 'Sin descripción'}</p>
+                  <p className="text-white text-sm font-medium truncate">{tx?.descripcion ?? 'Sin descripcion'}</p>
                   <p className="text-white/40 text-xs">{catInfo.label}</p>
                 </div>
                 <div className="text-right flex-shrink-0">

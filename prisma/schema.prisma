@@ -1,7 +1,6 @@
 generator client {
     provider = "prisma-client-js"
-    binaryTargets = ["native", "linux-musl-arm64-openssl-3.0.x"]
-    output = "/home/ubuntu/fintrack_app/nextjs_space/node_modules/.prisma/client"
+    binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -10,12 +9,15 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  name          String   @default("Usuario")
-  createdAt     DateTime @default(now())
-  credentials   WebAuthnCredential[]
-  transactions  Transaction[]
-  challenges    AuthChallenge[]
+  id                   String   @id @default(cuid())
+  name                 String   @default("Usuario")
+  pinHash              String?
+  saldoInicialEfectivo Float    @default(0)
+  saldoInicialTarjeta  Float    @default(0)
+  createdAt            DateTime @default(now())
+  credentials          WebAuthnCredential[]
+  transactions         Transaction[]
+  challenges           AuthChallenge[]
 }
 
 model WebAuthnCredential {

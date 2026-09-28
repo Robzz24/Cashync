@@ -1,0 +1,19 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/auth/check-setup/route": "/api/auth/check-setup",
+  "/api/auth/pin/setup/route": "/api/auth/pin/setup",
+  "/api/auth/pin/verify/route": "/api/auth/pin/verify",
+  "/api/auth/session/route": "/api/auth/session",
+  "/api/auth/webauthn/authenticate/options/route": "/api/auth/webauthn/authenticate/options",
+  "/api/auth/webauthn/authenticate/verify/route": "/api/auth/webauthn/authenticate/verify",
+  "/api/auth/webauthn/register/options/route": "/api/auth/webauthn/register/options",
+  "/api/auth/webauthn/register/verify/route": "/api/auth/webauthn/register/verify",
+  "/api/dashboard/route": "/api/dashboard",
+  "/api/export/route": "/api/export",
+  "/api/import/route": "/api/import",
+  "/api/transactions/[id]/route": "/api/transactions/[id]",
+  "/api/transactions/route": "/api/transactions",
+  "/api/user/balance/route": "/api/user/balance",
+  "/page": "/"
+}

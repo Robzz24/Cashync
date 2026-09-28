@@ -1,18 +1,17 @@
 {
-  "name": "FinTrack - Control de Gastos",
-  "short_name": "FinTrack",
-  "description": "Tu app personal de gestión de gastos y finanzas",
+  "name": "Cashync",
+  "short_name": "Cashync",
+  "description": "Tu gestor financiero personal",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a0533",
-  "theme_color": "#1a0533",
+  "theme_color": "#7c3aed",
   "orientation": "portrait",
   "icons": [
     {
       "src": "/favicon.svg",
       "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any"
+      "type": "image/svg+xml"
     }
   ]
 }

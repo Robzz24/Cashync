@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fintrack-v1';
+const CACHE_NAME = 'cashync-v1';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',

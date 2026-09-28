@@ -1,0 +1,3 @@
+module.exports=[57928,(a,b,c)=>{let{createClientModuleProxy:d}=a.r(86540);a.n(d("[project]/Users/Hernández/Documents/Code Projects/fintrack_app/nextjs_space/node_modules/next/dist/client/components/builtin/global-error.js"))},36262,a=>{"use strict";var b=a.i(57928);a.n(b)},33685,function(a){a.n(a.i(36262))}];
+
+//# sourceMappingURL=1sc2_next_dist_client_components_builtin_global-error_0o1g6s4.js.map

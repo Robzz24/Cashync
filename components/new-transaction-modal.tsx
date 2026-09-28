@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { X, MapPin, Loader2, Check } from 'lucide-react';
+import { X, MapPin, Loader2, Check, Wallet, CreditCard, Calendar, TrendingUp, TrendingDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES, CUENTAS, getCategoryInfo } from '@/lib/categories';
+import LucideIcon from './lucide-icon';
 
 interface NewTransactionModalProps {
   open: boolean;
@@ -17,6 +18,7 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
   const [categoria, setCategoria] = useState('');
   const [cuenta, setCuenta] = useState('Efectivo');
   const [descripcion, setDescripcion] = useState('');
+  const [fecha, setFecha] = useState(new Date().toISOString().slice(0, 10));
   const [ubicacion, setUbicacion] = useState('');
   const [loadingLocation, setLoadingLocation] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -35,11 +37,9 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=16`
       );
       const data = await res.json();
-      const address = data?.display_name ?? `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`;
-      setUbicacion(address);
-    } catch (err: any) {
-      console.error('Location error:', err);
-      setUbicacion('No se pudo obtener ubicación');
+      setUbicacion(data?.display_name ?? `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+    } catch {
+      setUbicacion('No se pudo obtener ubicacion');
     } finally {
       setLoadingLocation(false);
     }
@@ -58,6 +58,7 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
           categoria,
           cuenta,
           descripcion: descripcion || categoria,
+          fecha: fecha || undefined,
           ubicacion: ubicacion || null,
         }),
       });
@@ -67,7 +68,7 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
           setSaved(false);
           resetForm();
           onSaved();
-        }, 800);
+        }, 600);
       }
     } catch (err) {
       console.error('Save error:', err);
@@ -81,7 +82,13 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
     setCategoria('');
     setCuenta('Efectivo');
     setDescripcion('');
+    setFecha(new Date().toISOString().slice(0, 10));
     setUbicacion('');
+  };
+
+  const getCuentaIcon = (value: string) => {
+    if (value === 'Efectivo') return <Wallet size={16} />;
+    return <CreditCard size={16} />;
   };
 
   return (
@@ -93,10 +100,8 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 flex items-end justify-center"
         >
-          {/* Backdrop */}
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
-          {/* Modal */}
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
@@ -104,10 +109,8 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="relative w-full max-w-[430px] glass-strong rounded-t-3xl p-6 pb-8 max-h-[90vh] overflow-y-auto no-scrollbar"
           >
-            {/* Handle */}
             <div className="w-10 h-1 bg-white/30 rounded-full mx-auto mb-4" />
 
-            {/* Header */}
             <div className="flex items-center justify-between mb-5">
               <h2 className="font-display text-xl font-bold text-white">Nuevo movimiento</h2>
               <button onClick={onClose} className="p-2 rounded-xl glass hover:bg-white/10">
@@ -121,15 +124,16 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
                 <button
                   key={t}
                   onClick={() => { setTipo(t); setCategoria(''); }}
-                  className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all ${
+                  className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
                     tipo === t
                       ? t === 'Gasto'
-                        ? 'bg-red-500/30 text-red-300 border border-red-500/40'
-                        : 'bg-green-500/30 text-green-300 border border-green-500/40'
+                        ? 'bg-red-500/20 text-red-300 border border-red-500/30'
+                        : 'bg-green-500/20 text-green-300 border border-green-500/30'
                       : 'glass text-white/50'
                   }`}
                 >
-                  {t === 'Gasto' ? '💸 Gasto' : '💰 Ingreso'}
+                  {t === 'Gasto' ? <TrendingDown size={16} /> : <TrendingUp size={16} />}
+                  {t}
                 </button>
               ))}
             </div>
@@ -150,9 +154,23 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
               </div>
             </div>
 
+            {/* Date */}
+            <div className="mb-5">
+              <label className="text-white/50 text-xs mb-2 flex items-center gap-1">
+                <Calendar size={12} />
+                Fecha
+              </label>
+              <input
+                type="date"
+                value={fecha}
+                onChange={(e) => setFecha(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-purple-500/50 transition-colors [color-scheme:dark]"
+              />
+            </div>
+
             {/* Category */}
             <div className="mb-5">
-              <label className="text-white/50 text-xs mb-2 block">Categoría</label>
+              <label className="text-white/50 text-xs mb-2 block">Categoria</label>
               <div className="grid grid-cols-3 gap-2">
                 {categories.map((cat: any) => (
                   <button
@@ -161,13 +179,18 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
                     className={`p-3 rounded-xl text-center transition-all text-xs ${
                       categoria === cat.value
                         ? 'border-2 bg-white/10'
-                        : 'glass hover:bg-white/10'
+                        : 'glass hover:bg-white/10 border-2 border-transparent'
                     }`}
                     style={{
                       borderColor: categoria === cat.value ? cat.color : 'transparent',
                     }}
                   >
-                    <span className="text-lg block mb-1">{cat.emoji}</span>
+                    <div
+                      className="w-8 h-8 rounded-lg flex items-center justify-center mx-auto mb-1"
+                      style={{ backgroundColor: `${cat.color}20` }}
+                    >
+                      <LucideIcon name={cat.icon} size={16} style={{ color: cat.color }} />
+                    </div>
                     <span className="text-white/80 block truncate">{cat.label}</span>
                   </button>
                 ))}
@@ -182,14 +205,14 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
                   <button
                     key={c.value}
                     onClick={() => setCuenta(c.value)}
-                    className={`flex-1 py-3 rounded-xl text-sm transition-all ${
+                    className={`flex-1 py-3 rounded-xl text-sm transition-all flex flex-col items-center gap-1 ${
                       cuenta === c.value
-                        ? 'bg-purple-500/30 text-purple-300 border border-purple-500/40'
-                        : 'glass text-white/60'
+                        ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                        : 'glass text-white/60 border border-transparent'
                     }`}
                   >
-                    <span className="block text-lg">{c.emoji}</span>
-                    <span className="block text-xs mt-1">{c.label}</span>
+                    {getCuentaIcon(c.value)}
+                    <span className="text-[10px] leading-tight">{c.label}</span>
                   </button>
                 ))}
               </div>
@@ -197,7 +220,7 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
 
             {/* Description */}
             <div className="mb-5">
-              <label className="text-white/50 text-xs mb-2 block">Descripción</label>
+              <label className="text-white/50 text-xs mb-2 block">Descripcion</label>
               <input
                 type="text"
                 value={descripcion}
@@ -209,13 +232,13 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
 
             {/* Location */}
             <div className="mb-6">
-              <label className="text-white/50 text-xs mb-2 block">Ubicación</label>
+              <label className="text-white/50 text-xs mb-2 block">Ubicacion</label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={ubicacion}
                   onChange={(e) => setUbicacion(e.target.value)}
-                  placeholder="Obtener automáticamente..."
+                  placeholder="Obtener automaticamente..."
                   className="flex-1 bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-purple-500/50 transition-colors"
                   readOnly
                 />
@@ -233,7 +256,7 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
               </div>
             </div>
 
-            {/* Save Button */}
+            {/* Save */}
             <button
               onClick={handleSave}
               disabled={!monto || !categoria || saving}
@@ -244,7 +267,7 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
               }`}
             >
               {saved ? (
-                <><Check size={24} /> Guardado</>  
+                <><Check size={24} /> Guardado</>
               ) : saving ? (
                 <Loader2 size={24} className="animate-spin" />
               ) : (

@@ -13,7 +13,7 @@ export default function CategoryChart({ categorias }: CategoryChartProps) {
   const data = Object.entries(categorias ?? {})
     .map(([name, value]) => {
       const info = getCategoryInfo(name);
-      return { name: `${info.emoji} ${info.label}`, value: Number(value) || 0, color: info.color };
+      return { name: info.label, value: Number(value) || 0, color: info.color };
     })
     .sort((a, b) => b.value - a.value);
 

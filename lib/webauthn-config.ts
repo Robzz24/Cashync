@@ -1,4 +1,4 @@
-export const rpName = 'FinTrack';
+export const rpName = 'Cashync';
 
 export function getRpID(): string {
   return process.env.NEXTAUTH_URL ? new URL(process.env.NEXTAUTH_URL).hostname : 'localhost';

@@ -1,0 +1,19 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/auth/check-setup/route": "app/api/auth/check-setup/route.js",
+  "/api/auth/pin/setup/route": "app/api/auth/pin/setup/route.js",
+  "/api/auth/pin/verify/route": "app/api/auth/pin/verify/route.js",
+  "/api/auth/session/route": "app/api/auth/session/route.js",
+  "/api/auth/webauthn/authenticate/options/route": "app/api/auth/webauthn/authenticate/options/route.js",
+  "/api/auth/webauthn/authenticate/verify/route": "app/api/auth/webauthn/authenticate/verify/route.js",
+  "/api/auth/webauthn/register/options/route": "app/api/auth/webauthn/register/options/route.js",
+  "/api/auth/webauthn/register/verify/route": "app/api/auth/webauthn/register/verify/route.js",
+  "/api/dashboard/route": "app/api/dashboard/route.js",
+  "/api/export/route": "app/api/export/route.js",
+  "/api/import/route": "app/api/import/route.js",
+  "/api/transactions/[id]/route": "app/api/transactions/[id]/route.js",
+  "/api/transactions/route": "app/api/transactions/route.js",
+  "/api/user/balance/route": "app/api/user/balance/route.js",
+  "/page": "app/page.js"
+}

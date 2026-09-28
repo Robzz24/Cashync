@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Search, Filter, ChevronDown, Trash2, Edit3, X, Check, Loader2 } from 'lucide-react';
+import { Search, Filter, Trash2, Edit3, X, Check, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getCategoryInfo, MONTHS_ES, EXPENSE_CATEGORIES, INCOME_CATEGORIES, CUENTAS } from '@/lib/categories';
+import LucideIcon from './lucide-icon';
 
 interface HistoryPageProps {
   refreshKey: number;
@@ -98,7 +99,6 @@ export default function HistoryPage({ refreshKey, onRefresh }: HistoryPageProps)
     <div className="p-4 space-y-4">
       <h2 className="font-display text-xl font-bold text-white">Historial</h2>
 
-      {/* Search */}
       <div className="flex gap-2">
         <div className="flex-1 relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
@@ -118,7 +118,6 @@ export default function HistoryPage({ refreshKey, onRefresh }: HistoryPageProps)
         </button>
       </div>
 
-      {/* Filters */}
       <AnimatePresence>
         {showFilters && (
           <motion.div
@@ -142,7 +141,7 @@ export default function HistoryPage({ refreshKey, onRefresh }: HistoryPageProps)
                 </select>
               </div>
               <div>
-                <label className="text-white/50 text-xs mb-1 block">Categoría</label>
+                <label className="text-white/50 text-xs mb-1 block">Categoria</label>
                 <select
                   value={filterCategory}
                   onChange={(e) => { setFilterCategory(e.target.value); setPage(1); }}
@@ -150,7 +149,7 @@ export default function HistoryPage({ refreshKey, onRefresh }: HistoryPageProps)
                 >
                   <option value="" className="bg-gray-900">Todas</option>
                   {allCategories.map((c: any) => (
-                    <option key={c.value} value={c.value} className="bg-gray-900">{c.emoji} {c.label}</option>
+                    <option key={c.value} value={c.value} className="bg-gray-900">{c.label}</option>
                   ))}
                 </select>
               </div>
@@ -163,7 +162,7 @@ export default function HistoryPage({ refreshKey, onRefresh }: HistoryPageProps)
                 >
                   <option value="" className="bg-gray-900">Todas</option>
                   {CUENTAS.map((c: any) => (
-                    <option key={c.value} value={c.value} className="bg-gray-900">{c.emoji} {c.label}</option>
+                    <option key={c.value} value={c.value} className="bg-gray-900">{c.label}</option>
                   ))}
                 </select>
               </div>
@@ -178,7 +177,6 @@ export default function HistoryPage({ refreshKey, onRefresh }: HistoryPageProps)
         )}
       </AnimatePresence>
 
-      {/* Transaction List */}
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((i) => (
@@ -234,15 +232,15 @@ export default function HistoryPage({ refreshKey, onRefresh }: HistoryPageProps)
                 ) : (
                   <div className="flex items-center gap-3">
                     <div
-                      className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
+                      className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
                       style={{ backgroundColor: `${catInfo.color}20` }}
                     >
-                      {catInfo.emoji}
+                      <LucideIcon name={catInfo.icon} size={16} style={{ color: catInfo.color }} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-white text-sm font-medium truncate">{tx?.descripcion ?? 'Sin descripción'}</p>
+                      <p className="text-white text-sm font-medium truncate">{tx?.descripcion ?? 'Sin descripcion'}</p>
                       <p className="text-white/40 text-xs">
-                        {catInfo.label} · {tx?.cuenta ?? ''} · {MONTHS_ES[tx?.mes] ?? tx?.mes ?? ''}
+                        {catInfo.label} &middot; {tx?.cuenta ?? ''} &middot; {MONTHS_ES[tx?.mes] ?? tx?.mes ?? ''}
                       </p>
                     </div>
                     <div className="text-right flex-shrink-0">
@@ -274,7 +272,6 @@ export default function HistoryPage({ refreshKey, onRefresh }: HistoryPageProps)
         </div>
       )}
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-4 py-4">
           <button

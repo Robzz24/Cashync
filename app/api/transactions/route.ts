@@ -53,13 +53,13 @@ export async function POST(req: NextRequest) {
     if (!session) return NextResponse.json({ error: 'No autorizado' }, { status: 401 });
 
     const body = await req.json();
-    const { tipo, descripcion, monto, categoria, cuenta, metodoPago, ubicacion } = body;
+    const { tipo, descripcion, monto, categoria, cuenta, metodoPago, ubicacion, fecha } = body;
 
     if (!tipo || !descripcion || !monto || !categoria || !cuenta) {
       return NextResponse.json({ error: 'Campos requeridos faltantes' }, { status: 400 });
     }
 
-    const now = new Date();
+    const txDate = fecha ? new Date(fecha) : new Date();
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -68,8 +68,8 @@ export async function POST(req: NextRequest) {
         tipo,
         descripcion,
         monto: parseFloat(monto),
-        fecha: now,
-        mes: monthNames[now.getMonth()] ?? 'January',
+        fecha: txDate,
+        mes: monthNames[txDate.getMonth()] ?? 'January',
         metodoPago: metodoPago ?? (cuenta === 'Efectivo' ? 'Efectivo' : cuenta === 'Tarjeta de Débito' ? 'Debit' : 'Credit'),
         cuenta,
         categoria,

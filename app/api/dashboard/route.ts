@@ -14,27 +14,49 @@ export async function GET(req: NextRequest) {
       'July', 'August', 'September', 'October', 'November', 'December'];
     const currentMonth = url.searchParams.get('mes') ?? monthNames[new Date().getMonth()] ?? 'January';
 
+    const user = await prisma.user.findUnique({ where: { id: session.id } });
+    const saldoInicialEfectivo = user?.saldoInicialEfectivo ?? 0;
+    const saldoInicialTarjeta = user?.saldoInicialTarjeta ?? 0;
+
     const allTransactions = await prisma.transaction.findMany({
       where: { userId: session.id },
     });
 
     const monthTransactions = allTransactions.filter((t: any) => t.mes === currentMonth);
 
-    const totalIngresos = allTransactions
-      .filter((t: any) => t.tipo === 'Ingreso')
-      .reduce((sum: number, t: any) => sum + (t.monto ?? 0), 0);
+    // --- Accumulated totals (all time) ---
+    const totalIngresoEfectivo = allTransactions
+      .filter((t: any) => t.tipo === 'Ingreso' && t.cuenta === 'Efectivo')
+      .reduce((s: number, t: any) => s + (t.monto ?? 0), 0);
+    const totalGastoEfectivo = allTransactions
+      .filter((t: any) => t.tipo === 'Gasto' && t.cuenta === 'Efectivo')
+      .reduce((s: number, t: any) => s + (t.monto ?? 0), 0);
+    const totalIngresoTarjeta = allTransactions
+      .filter((t: any) => t.tipo === 'Ingreso' && t.cuenta !== 'Efectivo')
+      .reduce((s: number, t: any) => s + (t.monto ?? 0), 0);
+    const totalGastoTarjeta = allTransactions
+      .filter((t: any) => t.tipo === 'Gasto' && t.cuenta !== 'Efectivo')
+      .reduce((s: number, t: any) => s + (t.monto ?? 0), 0);
 
-    const totalGastos = allTransactions
-      .filter((t: any) => t.tipo === 'Gasto')
-      .reduce((sum: number, t: any) => sum + (t.monto ?? 0), 0);
+    const saldoEfectivoTotal = saldoInicialEfectivo + totalIngresoEfectivo - totalGastoEfectivo;
+    const saldoTarjetaTotal = saldoInicialTarjeta + totalIngresoTarjeta - totalGastoTarjeta;
 
-    const mesIngresos = monthTransactions
-      .filter((t: any) => t.tipo === 'Ingreso')
-      .reduce((sum: number, t: any) => sum + (t.monto ?? 0), 0);
+    // --- Monthly breakdown ---
+    const mesIngresoEfectivo = monthTransactions
+      .filter((t: any) => t.tipo === 'Ingreso' && t.cuenta === 'Efectivo')
+      .reduce((s: number, t: any) => s + (t.monto ?? 0), 0);
+    const mesGastoEfectivo = monthTransactions
+      .filter((t: any) => t.tipo === 'Gasto' && t.cuenta === 'Efectivo')
+      .reduce((s: number, t: any) => s + (t.monto ?? 0), 0);
+    const mesIngresoTarjeta = monthTransactions
+      .filter((t: any) => t.tipo === 'Ingreso' && t.cuenta !== 'Efectivo')
+      .reduce((s: number, t: any) => s + (t.monto ?? 0), 0);
+    const mesGastoTarjeta = monthTransactions
+      .filter((t: any) => t.tipo === 'Gasto' && t.cuenta !== 'Efectivo')
+      .reduce((s: number, t: any) => s + (t.monto ?? 0), 0);
 
-    const mesGastos = monthTransactions
-      .filter((t: any) => t.tipo === 'Gasto')
-      .reduce((sum: number, t: any) => sum + (t.monto ?? 0), 0);
+    const mesIngresos = mesIngresoEfectivo + mesIngresoTarjeta;
+    const mesGastos = mesGastoEfectivo + mesGastoTarjeta;
 
     // Category breakdown for the month
     const categorias: Record<string, number> = {};
@@ -61,12 +83,15 @@ export async function GET(req: NextRequest) {
     }).filter((m: any) => m.ingresos > 0 || m.gastos > 0);
 
     return NextResponse.json({
-      balance: totalIngresos - totalGastos,
-      totalIngresos,
-      totalGastos,
+      saldoEfectivoTotal,
+      saldoTarjetaTotal,
       mesIngresos,
       mesGastos,
       mesSaldo: mesIngresos - mesGastos,
+      mesIngresoEfectivo,
+      mesGastoEfectivo,
+      mesIngresoTarjeta,
+      mesGastoTarjeta,
       categorias,
       recientes,
       monthlyTrend,

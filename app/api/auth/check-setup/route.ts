@@ -10,9 +10,10 @@ export async function GET() {
     });
     return NextResponse.json({
       hasUser: !!user,
+      hasPin: !!user?.pinHash,
       hasCredentials: (user?._count?.credentials ?? 0) > 0,
     });
   } catch {
-    return NextResponse.json({ hasUser: false, hasCredentials: false });
+    return NextResponse.json({ hasUser: false, hasPin: false, hasCredentials: false });
   }
 }
