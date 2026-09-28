@@ -14,11 +14,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'PIN debe ser de 4 dígitos' }, { status: 400 });
     }
 
-    // Check if user already exists
+    // Si ya existe un usuario, actualizar su PIN y saldos
     const existing = await prisma.user.findFirst();
-    if (existing?.pinHash) {
-      return NextResponse.json({ error: 'PIN ya configurado' }, { status: 400 });
-    }
 
     const pinHash = await bcrypt.hash(pin, 10);
 
@@ -46,6 +43,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, userId: user.id });
   } catch (error: any) {
     console.error('PIN setup error:', error);
-    return NextResponse.json({ error: error?.message ?? 'Error al configurar PIN' }, { status: 500 });
+    return NextResponse.json({ 
+      error: error?.message || 'Error de base de datos al configurar PIN' 
+    }, { status: 500 });
   }
 }
