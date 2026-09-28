@@ -70,9 +70,11 @@ export default function AuthScreen({ mode, onSuccess }: AuthScreenProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pin: pinValue }),
       });
-      const data = await res.json();
+      const text = await res.text();
+      let data: any = {};
+      try { data = text ? JSON.parse(text) : {}; } catch {}
       if (!res.ok) {
-        setError(data?.error ?? 'PIN incorrecto');
+        setError(data?.error ?? (text || 'PIN incorrecto'));
         triggerShake();
         setTimeout(() => setPin(''), 500);
       } else {
@@ -100,11 +102,23 @@ export default function AuthScreen({ mode, onSuccess }: AuthScreenProps) {
           saldoInicialTarjeta: parseFloat(saldoTarjeta || '0'),
         }),
       });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error ?? 'Error');
 
-      // Import historical data
-      await fetch('/api/import', { method: 'POST' }).catch(() => {});
+      let data: any = {};
+      const text = await res.text();
+      try {
+        data = text ? JSON.parse(text) : {};
+      } catch {
+        console.error('Non-JSON response from /api/auth/pin/setup:', text);
+      }
+
+      if (!res.ok) throw new Error(data?.error ?? (text || 'Error al configurar PIN'));
+
+      // Import historical data (opcional, no bloqueante)
+      try {
+        await fetch('/api/import', { method: 'POST' });
+      } catch (importErr) {
+        console.warn('Import warning:', importErr);
+      }
 
       onSuccess();
     } catch (err: any) {

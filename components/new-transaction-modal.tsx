@@ -69,6 +69,11 @@ export default function NewTransactionModal({ open, onClose, onSaved }: NewTrans
           resetForm();
           onSaved();
         }, 600);
+      } else {
+        const text = await res.text();
+        let errData: any = {};
+        try { errData = JSON.parse(text); } catch {}
+        console.error('Error guardando transacción:', errData?.error ?? text);
       }
     } catch (err) {
       console.error('Save error:', err);

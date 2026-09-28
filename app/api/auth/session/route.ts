@@ -13,7 +13,8 @@ export async function GET() {
       authenticated: true,
       user: session,
     });
-  } catch {
+  } catch (error) {
+    console.error('Error in session GET:', error);
     return NextResponse.json({ authenticated: false });
   }
 }

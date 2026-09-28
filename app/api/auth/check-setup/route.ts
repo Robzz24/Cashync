@@ -13,7 +13,8 @@ export async function GET() {
       hasPin: !!user?.pinHash,
       hasCredentials: (user?._count?.credentials ?? 0) > 0,
     });
-  } catch {
+  } catch (error) {
+    console.error('Error in check-setup:', error);
     return NextResponse.json({ hasUser: false, hasPin: false, hasCredentials: false });
   }
 }
